@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Jogo criado para inscrição no hackaixa!">
+    <meta name="author" content="Leandro Del Arco">
+	<title>sudokaixa! (leandro del'arco)</title>
+	<style>
+		body{
+			font-family: arial,sans-serif;
+			min-width:500px;
+			overflow: hidden;
+			margin: 0;
+			padding: 0;
+			background-color: #FFF;
+			transition: all .30s;
+			font-family: sans-serif;
+		}
+
+		body.finished{
+			background-color: #000;
+		}
+
+		.fireworks{
+			display:none;;
+		}
+
+		body.finished .fireworks{
+			display: block;
+		}
+
+		h3{
+			text-align: center;
+			margin: 10px 0;
+		}
+
+		body.finished h3{
+			transition: all .30s;
+			color: white;
+		}
+		
+		/* game - styling */
+
+		.options{
+			max-width: 500px;
+			margin: 20px auto;
+			text-align: center;
+		}
+		
+		.options button{
+			width: 140px;
+			height: 40px;
+			margin: 0 10px;
+			font-weight: 600;
+			cursor: pointer;
+			border-radius: 5px;
+			transition: all .25s;
+		}
+			
+		button.blue{ border: 3px solid #0D47A1; background-color: #BBDEFB; } 
+		button.blue:hover{ color: white; background-color: #2196F3; } 
+		button.green{ border: 3px solid #1B5E20; background-color: #C8E6C9; }
+		button.green:hover{ color: white; background-color: #4CAF50; }
+		button.orange{ border: 3px solid #E65100; background-color: #FFE0B2; }
+		button.orange:hover{ color: white; background-color: #FF9800; }
+		
+		#board{
+			margin: 0 auto;
+			border-collapse: collapse; 
+			border-top: 5px solid black;
+			border-left: 5px solid black;
+			background-color: #FFF;
+		}
+		
+		.row{
+			border-bottom: 2px solid black;
+			border-right: 5px solid black;
+		}
+		
+		.row.separador{
+			border-bottom: 4px solid black;
+		}
+		
+		.cel{
+			width: 50px;
+			height:50px;
+			border-right: 2px solid #333;
+			text-align: center;
+			font-size: 1.6em;
+		}
+		
+		.cel.separador{
+			border-right: 4px solid black;
+		}
+		
+		.cel div{
+			width:100%;
+			height: 100%;
+			line-height: 50px;
+			border:0;
+			outline:0;
+			text-align: center;
+		}
+		
+		[data-fixed=true] {
+			background-color: #FFFF8D;
+		}
+		
+		[data-error=true]{
+			background-color: #F44336;
+		}
+		
+		[data-fixed=false][data-error=true]{
+			background-color: #FFCDD2;
+		}
+		
+
+		/* fireworks - burn!!! */
+		
+		.fireworks > .before, .fireworks > .after {
+			position: absolute;
+			width: 5px;
+			height: 5px;
+			border-radius: 50%;
+			box-shadow: -120px -218.66667px blue, 248px -16.66667px #00ff84, 190px 16.33333px #002bff, -113px -308.66667px #ff009d, -109px -287.66667px #ffb300, -50px -313.66667px #ff006e, 226px -31.66667px #ff4000, 180px -351.66667px #ff00d0, -12px -338.66667px #00f6ff, 220px -388.66667px #99ff00, -69px -27.66667px #ff0400, -111px -339.66667px #6200ff, 155px -237.66667px #00ddff, -152px -380.66667px #00ffd0, -50px -37.66667px #00ffdd, -95px -175.66667px #a6ff00, -88px 10.33333px #0d00ff, 112px -309.66667px #005eff, 69px -415.66667px #ff00a6, 168px -100.66667px #ff004c, -244px 24.33333px #ff6600, 97px -325.66667px #ff0066, -211px -182.66667px #00ffa2, 236px -126.66667px #b700ff, 140px -196.66667px #9000ff, 125px -175.66667px #00bbff, 118px -381.66667px #ff002f, 144px -111.66667px #ffae00, 36px -78.66667px #f600ff, -63px -196.66667px #c800ff, -218px -227.66667px #d4ff00, -134px -377.66667px #ea00ff, -36px -412.66667px #ff00d4, 209px -106.66667px #00fff2, 91px -278.66667px #000dff, -22px -191.66667px #9dff00, 139px -392.66667px #a6ff00, 56px -2.66667px #0099ff, -156px -276.66667px #ea00ff, -163px -233.66667px #00fffb, -238px -346.66667px #00ff73, 62px -363.66667px #0088ff, 244px -170.66667px #0062ff, 224px -142.66667px #b300ff, 141px -208.66667px #9000ff, 211px -285.66667px #ff6600, 181px -128.66667px #1e00ff, 90px -123.66667px #c800ff, 189px 70.33333px #00ffc8, -18px -383.66667px #00ff33, 100px -6.66667px #ff008c;
+			-moz-animation: 1s bang ease-out infinite backwards, 1s gravity ease-in infinite backwards, 5s position linear infinite backwards;
+			-webkit-animation: 1s bang ease-out infinite backwards, 1s gravity ease-in infinite backwards, 5s position linear infinite backwards;
+			-o-animation: 1s bang ease-out infinite backwards, 1s gravity ease-in infinite backwards, 5s position linear infinite backwards;
+			-ms-animation: 1s bang ease-out infinite backwards, 1s gravity ease-in infinite backwards, 5s position linear infinite backwards;
+			animation: 1s bang ease-out infinite backwards, 1s gravity ease-in infinite backwards, 5s position linear infinite backwards; }
+		.fireworks > .after {
+			-moz-animation-delay: 1.25s, 1.25s, 1.25s; -webkit-animation-delay: 1.25s, 1.25s, 1.25s; -o-animation-delay: 1.25s, 1.25s, 1.25s; -ms-animation-delay: 1.25s, 1.25s, 1.25s; animation-delay: 1.25s, 1.25s, 1.25s; 
+			-moz-animation-duration: 1.25s, 1.25s, 6.25s; -webkit-animation-duration: 1.25s, 1.25s, 6.25s; -o-animation-duration: 1.25s, 1.25s, 6.25s; -ms-animation-duration: 1.25s, 1.25s, 6.25s; animation-duration: 1.25s, 1.25s, 6.25s; }
+		@-webkit-keyframes bang { from { box-shadow: 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white; } }
+		@-moz-keyframes bang { from { box-shadow: 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white; } }
+		@-o-keyframes bang { from { box-shadow: 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white; } }
+		@-ms-keyframes bang { from { box-shadow: 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white; } }
+		@keyframes bang { from { box-shadow: 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white; } }
+		@-webkit-keyframes gravity { to {
+			transform: translateY(200px); -moz-transform: translateY(200px); 
+			-webkit-transform: translateY(200px); -o-transform: translateY(200px);
+			-ms-transform: translateY(200px); opacity: 0; } }
+		@-moz-keyframes gravity { to {
+			transform: translateY(200px); -moz-transform: translateY(200px);
+			-webkit-transform: translateY(200px); -o-transform: translateY(200px);
+			-ms-transform: translateY(200px); opacity: 0; } }
+		@-o-keyframes gravity {
+		  to {
+			transform: translateY(200px);
+			-moz-transform: translateY(200px);
+			-webkit-transform: translateY(200px);
+			-o-transform: translateY(200px);
+			-ms-transform: translateY(200px);
+			opacity: 0; } }
+		@-ms-keyframes gravity {
+		  to {
+			transform: translateY(200px);
+			-moz-transform: translateY(200px);
+			-webkit-transform: translateY(200px);
+			-o-transform: translateY(200px);
+			-ms-transform: translateY(200px);
+			opacity: 0; } }
+		@keyframes gravity {
+		  to {
+			transform: translateY(200px);
+			-moz-transform: translateY(200px);
+			-webkit-transform: translateY(200px);
+			-o-transform: translateY(200px);
+			-ms-transform: translateY(200px);
+			opacity: 0; } }
+		@-webkit-keyframes position { 
+			0%, 19.9% { margin-top: 10%; margin-left: 40%; }
+			20%, 39.9% { margin-top: 40%; margin-left: 30%; }
+			40%, 59.9% { margin-top: 20%; margin-left: 70%; }
+			60%, 79.9% { margin-top: 30%; margin-left: 20%; }
+			80%, 99.9% { margin-top: 30%; margin-left: 80%; } }
+		@-moz-keyframes position {
+			0%, 19.9% { margin-top: 10%; margin-left: 40%; }
+			20%, 39.9% { margin-top: 40%; margin-left: 30%; }
+			40%, 59.9% { margin-top: 20%; margin-left: 70%; }
+			60%, 79.9% { margin-top: 30%; margin-left: 20%; }
+			80%, 99.9% { margin-top: 30%; margin-left: 80%; } }
+		@-o-keyframes position {
+			0%, 19.9% { margin-top: 10%; margin-left: 40%; }
+			20%, 39.9% { margin-top: 40%; margin-left: 30%; }
+			40%, 59.9% { margin-top: 20%; margin-left: 70%; }
+			60%, 79.9% { margin-top: 30%; margin-left: 20%; }
+			80%, 99.9% { margin-top: 30%; margin-left: 80%; } }
+		@-ms-keyframes position {
+			0%, 19.9% { margin-top: 10%; margin-left: 40%; }
+			20%, 39.9% { margin-top: 40%; margin-left: 30%; }
+			40%, 59.9% { margin-top: 20%; margin-left: 70%; }
+			60%, 79.9% { margin-top: 30%; margin-left: 20%; }
+			80%, 99.9% { margin-top: 30%; margin-left: 80%; } }
+		@keyframes position {
+			0%, 19.9% { margin-top: 10%; margin-left: 40%; }
+			20%, 39.9% { margin-top: 40%; margin-left: 30%; }
+			40%, 59.9% { margin-top: 20%; margin-left: 70%; }
+			60%, 79.9% { margin-top: 30%; margin-left: 20%; }
+			80%, 99.9% { margin-top: 30%; margin-left: 80%; } }
+	</style>
+	
+</head>
+<body>
+	<div class="fireworks">
+		<div class="before"></div>
+		<div class="after"></div>
+	</div>
+	<h3>sudokaixa! v0.5</h3>
+	<div class="options">
+		<button class="blue" onclick="sudokuGame.newGame()" id="buttonNovo">Novo</button>
+		<button class="green" onclick="sudokuGame.hint(this)" id="buttonDica">Dica</button>
+		<button class="orange" onclick="sudokuGame.solve()" id="buttonSolve">Resolver</button>
+	</div>
+	<table id="board"></table>
+	<script type="text/javascript">
+		"use strict";
+		var sudokuGame = {
+
+			language: {
+				tip: 'Tip',
+				newGame: 'New game',
+				solve: 'Solve'
+			},
+
+			boardCreated: false,
+			dicas: 0,
+			solved: false,
+			
+			setLanguage: function(language) {
+				this.language = language;
+			},
+
+			newGame: function() {
+			
+				if(!sudokuGame.boardCreated){
+					sudokuGame.createBoard("board");
+				}
+			
+				// reset
+				this.solved = false;
+				this.dicas = 10;
+				
+				var buttonDica = document.getElementById("buttonDica");
+				buttonDica.textContent = this.language.tip + " (" + this.dicas + ")";
+				buttonDica.disabled = false;
+				
+				var buttonNovo = document.getElementById("buttonNovo");
+				buttonNovo.textContent = this.language.newGame;
+
+				var buttonSolve = document.getElementById("buttonSolve");
+				buttonSolve.textContent = this.language.solve;
+
+				this.setFinished(false);
+			
+				// new board
+				boardGenerator.generate();
+				
+				// fill board
+				for(var i = 0; i < 81; i++){
+					var s = boardGenerator.squares[i];
+					this.setCellError(i, false);
+					if(s.show){
+						this.setCellValue(i, s.value);
+						s.userValue = s.value;
+						this.setCellEditable(i, false);
+					}
+					else{
+						this.setCellValue(i, "");
+						this.setCellEditable(i, true);
+					}
+				}
+			},
+			
+			hint: function(sender){
+				this.dicas--;
+				sender.textContent = this.language.tip + " (" + this.dicas + ")";
+				
+				if(this.dicas == 0){
+					sender.disabled = true;
+				}
+				
+				// check next square
+				for(var i = 0; i < 81; i++){
+					var s = boardGenerator.squares[i];
+					if(!s.show && s.userValue == ""){
+						this.setCellValue(i, s.value);
+						s.userValue = s.value;
+						break;
+					}
+				}
+				
+			},
+			
+			solve: function(){
+				for(var i = 0; i < 81; i++){
+					this.setCellValue(i, boardGenerator.squares[i].value);
+					this.setCellEditable(i, false);
+					this.setCellError(i, false);
+				}
+				this.setFinished(true);
+			},
+			
+			createBoard: function(boardId){
+			
+				var board = document.getElementById(boardId);
+				var tbody = document.createElement("tbody");
+				var index = 0;
+				
+				for(var row = 0; row < 9; row++){
+					
+					// create tr
+					var tr = document.createElement("tr");
+					tr.setAttribute("class", "row");
+					
+					// for every 3 rows, add a separator
+					if((row + 1) % 3 == 0){
+						tr.setAttribute("class", "row separador");
+					}
+					
+					for(var col = 0; col < 9; col++){
+					
+						// create td
+						var td = document.createElement("td");
+						td.setAttribute("class", "cel");
+						td.setAttribute("id", "idx" + (index));
+
+						// every 3 cells, add a separator
+						if((col + 1) % 3 == 0){
+							td.setAttribute("class", "cel separador");
+						}
+						
+						var div = document.createElement("div");
+						div.setAttribute("id", "idxDiv" + (index++));
+						div.addEventListener("input", this.onCellInput, false);
+						
+						td.appendChild(div);
+						tr.appendChild(td);
+					}
+					tbody.appendChild(tr); 
+				}		
+				board.appendChild(tbody);
+				this.boardCreated = true;
+			},
+			
+			onCellInput: function(event){
+				var value = event.target.textContent.replace(/[^0-9]/, '').substring(0,1);
+				var index = parseInt(event.target.id.replace("idxDiv", ""));
+				sudokuGame.setCellValue(index, value);
+				boardGenerator.squares[index].userValue = value;
+				sudokuGame.validate(index, value);
+			},
+			
+			validate: function(index, value){
+
+				var error = false;
+			
+				// check row
+				var rowInit = Math.floor(index / 9) * 9;
+				for(var i = rowInit; i < rowInit + 9; i++){
+		
+					// oh noes!
+					if(i != index && value != "" && boardGenerator.squares[i].userValue == value){
+						this.setCellError(i, true);
+						this.setCellError(index, true);
+						error = true;
+						break;
+					}
+					else{
+						this.setCellError(i, false);
+						this.setCellError(index, false);
+					}
+				}
+				
+				// check column
+				var colInit = index % 9;
+				
+				for(var c = 0; c < 9; c++){
+					var i = colInit + (c * 9);
+					
+					// oh noes!
+					if(i != index && value != "" && boardGenerator.squares[i].userValue == value){
+						this.setCellError(i, true);
+						this.setCellError(index, true);
+						error = true;
+						break;
+					}
+					else{
+						this.setCellError(i, false);
+						this.setCellError(index, false);
+					}
+				}
+		
+				// check region
+				var region = boardGenerator.squares[index].region;
+				for(var i = 0; i < 81; i++){
+					var s = boardGenerator.squares[i];
+
+					if(s.region == region){
+				
+						// oh noes!
+						if( i != index && value != "" && boardGenerator.squares[i].userValue == value){
+							this.setCellError(i, true);
+							this.setCellError(index, true);
+							error = true;
+							break;
+						}
+						else{
+							this.setCellError(i, false);
+							this.setCellError(index, false);
+						}
+					}
+				}
+				
+				// ok! not a problem, so let's check if the game is complete
+				if(!error){
+					var complete = true;
+					for(var i = 0; i < 81; i++){
+						var s = boardGenerator.squares[i];
+						if(s.userValue != s.value){
+							complete = false;
+							break;
+						}
+					}
+					if(complete){
+						this.setFinished(true);
+					}
+				}
+
+			},
+			
+			setCellError: function(index, error){
+				document.getElementById("idx" + index).setAttribute("data-error", error);
+			},
+			
+			setCellValue: function(index, value){
+				document.getElementById("idxDiv" + index).textContent = value;
+			},
+			
+			getCellValue: function(index){
+				return document.getElementById("idxDiv" + index).textContent;
+			},
+			
+			setCellEditable: function(index, editable){
+				document.getElementById("idx" + index).setAttribute("data-fixed", !editable);
+				document.getElementById("idxDiv" + index).contentEditable = editable;
+			},
+			
+			setFinished: function(finished){
+				this.solved = finished;
+				document.getElementById("buttonDica").disabled = finished;
+				document.getElementById("buttonSolve").disabled = finished;
+				document.getElementsByTagName("body")[0].setAttribute("class", (finished ? "finished" : ""));
+			}
+		};
+	
+		var boardGenerator = {
+
+			// 81 squares
+			squares: [],
+		
+			clear: function(){
+				this.squares = [];
+			},
+		
+			generate: function(){
+			
+				// let's
+				this.clear();
+				
+				// array list for each square, containing the numbers that can still be used
+				var available = [];
+				
+				// init arrays
+				for(var i = 0; i < 81; i++){
+					this.squares.push(this.square());			
+					available[i] = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+				}
+				
+				// counter (squares)
+				var c = 0; 
+				
+				while(c != 81){
+					if(available[c].length != 0){
+						var i = this.rnd(0, available[c].length - 1);
+						var z = available[c][i];
+						if(!this.notPossible(this.squares, this.item(c, z))){
+							this.squares[c] = this.item(c, z);
+							available[c].splice(i, 1);
+							c++;
+						}
+						else{
+							available[c].splice(i, 1); // oh noes! this number don't fit, remove it
+						}
+					}
+					else{
+						available[c] = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+						this.squares[c - 1] = this.square();
+						c--;
+					}
+				}
+
+				// BIRL! we got a valid board, now let's select some squares to show
+				this.selectFew(44);
+			},
+
+			selectFew: function(qtd){
+			
+				var selectList = this.fillList(1);
+				var leftSel = Math.round((5 / 9) * qtd) - 2;
+			
+				while(selectList.length != (qtd - leftSel)){
+					var index = this.rnd(0, selectList.length - 1);
+					selectList.splice(index, 1);
+				}
+
+				for(var i = 0; i < selectList.length; i++){
+					this.squares[selectList[i] - 1].show = false;
+				}
+			
+				for(var i = 0; i < 81; i++){
+					var s = boardGenerator.squares[i];
+					if(!s.show){
+						var a = this.getAcross(i + 1);
+						var r = (10 - a) - a;
+						r = r + (9 * (10 - (2 * this.getDown(i + 1))));
+						selectList.push(i + 1 + r);
+					}
+				}
+				
+				for(var i = 0; i < selectList.length; i++){
+					this.squares[selectList[i] - 1].show = false;
+				}
+			},
+			
+			fillList: function(k){
+				var list = [];
+				
+				for(var i = 0; i < 9; i++){
+					var j = 9 * i;
+					list.push(k + j);
+					list.push(k + j + 1);
+					list.push(k + j + 2);
+					list.push(k + j + 3);
+					list.push(k + j + 4);
+				}
+				return list;
+			
+			},
+			
+			rnd: function(menor, maior){
+				return (Math.floor(Math.random() * maior) + menor);
+			},
+			
+			notPossible: function(currentValues, test){
+			
+				for(var i = 0; i < currentValues.length; i++){
+					var s = currentValues[i];
+					if(
+						(s.across != 0 && s.across == test.across) || 
+						(s.down != 0 && s.down == test.down) || 
+						(s.region != 0 && s.region == test.region)
+					){
+						if(s.value == test.value){
+							return true;
+						}
+					}
+				}
+				
+				return false;
+			},
+			
+			square: function(){
+				return { value: 0, index: 0, across: 0, down: 0, region: 0, show: true, userValue: "" };
+			},
+			
+			item: function(index, value){
+				return {
+					index: index,
+					value: value,
+					across: this.getAcross(index + 1),
+					down: this.getDown(index + 1),
+					region: this.getRegion(index + 1),
+					show: true,
+					userValue: ""
+				};
+			},
+			
+			getAcross: function(num){
+				var k = num % 9;
+				return (k == 0 ? 9 : k);
+			},
+			
+			getDown: function(num){
+				return (this.getAcross(num) == 9 ? (Math.floor(num / 9)) : (Math.floor(num / 9) + 1));
+			},
+			
+			getRegion: function(num){
+				var a = this.getAcross(num);
+				var d = this.getDown(num);
+				if(1 <= a && a < 4 && 1 <= d && d < 4) 	return 1;
+				if(4 <= a && a < 7 && 1 <= d && d < 4) 	return 2;
+				if(7 <= a && a < 10 && 1 <= d && d < 4) return 3;
+				if(1 <= a && a < 4 && 4 <= d && d < 7) 	return 4;
+				if(4 <= a && a < 7 && 4 <= d && d < 7) 	return 5;
+				if(7 <= a && a < 10 && 4 <= d && d < 7) return 6;
+				if(1 <= a && a < 4 && 7 <= d && d < 10) return 7;
+				if(4 <= a && a < 7 && 7 <= d && d < 10) return 8;
+				if(7 <= a && a < 10 && 7 <= d && d < 10) return 9;
+			}
+		};
+
+		var language_pt_br = {
+			tip: 'Dica',
+			newGame: 'Novo jogo',
+			solve: 'Resolver'
+		};
+
+		// set language
+		//sudokuGame.setLanguage(language_pt_br);
+		
+		// initialize game
+		sudokuGame.newGame();
+		
+	</script>
+</body>
+</html>
